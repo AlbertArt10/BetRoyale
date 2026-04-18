@@ -1,7 +1,10 @@
 using BetRoyale.API.DTOs.Auth;
 using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace BetRoyale.API.Controllers;
 
@@ -83,5 +86,37 @@ public class AuthController : ControllerBase
                 detail: ex.Message,
                 statusCode: StatusCodes.Status500InternalServerError);
         }
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(MeResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public ActionResult<MeResponseDto> Me()
+    {
+        var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var usernameClaim = User.Identity?.Name
+            ?? User.FindFirst(JwtRegisteredClaimNames.UniqueName)?.Value
+            ?? User.FindFirst(ClaimTypes.Name)?.Value;
+        var emailClaim = User.FindFirst(JwtRegisteredClaimNames.Email)?.Value
+            ?? User.FindFirst(ClaimTypes.Email)?.Value;
+        var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (!Guid.TryParse(userIdClaim, out var userId) ||
+            string.IsNullOrWhiteSpace(usernameClaim) ||
+            string.IsNullOrWhiteSpace(emailClaim) ||
+            string.IsNullOrWhiteSpace(roleClaim))
+        {
+            return Unauthorized(new { message = "Invalid authenticated user." });
+        }
+
+        return Ok(new MeResponseDto
+        {
+            UserId = userId,
+            Username = usernameClaim,
+            Email = emailClaim,
+            Role = roleClaim
+        });
     }
 }
