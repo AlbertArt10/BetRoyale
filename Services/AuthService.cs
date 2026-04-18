@@ -1,4 +1,3 @@
-using BetRoyale.API.Configurations;
 using BetRoyale.API.Data;
 using BetRoyale.API.Data.Seed;
 using BetRoyale.API.DTOs.Auth;
@@ -6,7 +5,6 @@ using BetRoyale.API.Entities;
 using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace BetRoyale.API.Services;
 
@@ -15,24 +13,19 @@ public class AuthService : IAuthService
     private readonly AppDbContext _dbContext;
     private readonly IPasswordHashingService _passwordHashingService;
     private readonly ITokenService _tokenService;
-    private readonly JwtOptions _jwtOptions;
 
     public AuthService(
         AppDbContext dbContext,
         IPasswordHashingService passwordHashingService,
-        ITokenService tokenService,
-        IOptions<JwtOptions> jwtOptions)
+        ITokenService tokenService)
     {
         _dbContext = dbContext;
         _passwordHashingService = passwordHashingService;
         _tokenService = tokenService;
-        _jwtOptions = jwtOptions.Value;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
     {
-        _ = _jwtOptions;
-
         var username = request.Username?.Trim();
         if (string.IsNullOrWhiteSpace(username))
         {
@@ -110,8 +103,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
     {
-        _ = _jwtOptions;
-
         var emailOrUsername = request.EmailOrUsername?.Trim();
         if (string.IsNullOrWhiteSpace(emailOrUsername) || string.IsNullOrEmpty(request.Password))
         {

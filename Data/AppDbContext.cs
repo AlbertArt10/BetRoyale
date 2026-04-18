@@ -16,6 +16,8 @@ public class AppDbContext : DbContext
 
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
+    public DbSet<Match> Matches => Set<Match>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
