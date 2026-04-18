@@ -14,15 +14,18 @@ public class AuthService : IAuthService
 {
     private readonly AppDbContext _dbContext;
     private readonly IPasswordHashingService _passwordHashingService;
+    private readonly ITokenService _tokenService;
     private readonly JwtOptions _jwtOptions;
 
     public AuthService(
         AppDbContext dbContext,
         IPasswordHashingService passwordHashingService,
+        ITokenService tokenService,
         IOptions<JwtOptions> jwtOptions)
     {
         _dbContext = dbContext;
         _passwordHashingService = passwordHashingService;
+        _tokenService = tokenService;
         _jwtOptions = jwtOptions.Value;
     }
 
@@ -105,14 +108,52 @@ public class AuthService : IAuthService
         };
     }
 
-    public Task<AuthResponseDto> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
     {
-        _ = _dbContext;
-        _ = _passwordHashingService;
         _ = _jwtOptions;
-        _ = request;
-        _ = cancellationToken;
 
-        throw new NotImplementedException();
+        var emailOrUsername = request.EmailOrUsername?.Trim();
+        if (string.IsNullOrWhiteSpace(emailOrUsername) || string.IsNullOrEmpty(request.Password))
+        {
+            throw new InvalidCredentialsException("Invalid credentials.");
+        }
+
+        var normalizedIdentifier = emailOrUsername.ToUpperInvariant();
+
+        var user = await _dbContext.Users
+            .Include(currentUser => currentUser.Role)
+            .SingleOrDefaultAsync(
+                currentUser =>
+                    currentUser.Username == emailOrUsername ||
+                    currentUser.Email.ToUpper() == normalizedIdentifier,
+                cancellationToken);
+
+        if (user is null)
+        {
+            throw new InvalidCredentialsException("Invalid credentials.");
+        }
+
+        var isPasswordValid = _passwordHashingService.VerifyPassword(user, user.PasswordHash, request.Password);
+        if (!isPasswordValid)
+        {
+            throw new InvalidCredentialsException("Invalid credentials.");
+        }
+
+        if (user.Role is null)
+        {
+            throw new RoleNotFoundException("The user's role was not found.");
+        }
+
+        var tokenResult = _tokenService.GenerateAccessToken(user, user.Role.Name);
+
+        return new AuthResponseDto
+        {
+            UserId = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            Role = user.Role.Name,
+            AccessToken = tokenResult.AccessToken,
+            ExpiresAtUtc = tokenResult.ExpiresAtUtc
+        };
     }
 }

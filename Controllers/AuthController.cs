@@ -58,4 +58,30 @@ public class AuthController : ControllerBase
                 statusCode: StatusCodes.Status500InternalServerError);
         }
     }
+
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AuthResponseDto>> Login(
+        [FromBody] LoginRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _authService.LoginAsync(request, cancellationToken);
+            return Ok(response);
+        }
+        catch (InvalidCredentialsException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (RoleNotFoundException ex)
+        {
+            return Problem(
+                title: "Login failed.",
+                detail: ex.Message,
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
 }

@@ -15,6 +15,7 @@ namespace BetRoyale.API
             builder.Services.AddPostgreSqlPersistence(builder.Configuration);
             builder.Services.AddJwtAuthentication(builder.Configuration);
             builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+            builder.Services.AddScoped<ITokenService, JwtTokenService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

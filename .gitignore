@@ -39,7 +39,7 @@ appsettings.Local.json
 AGENTS.md
 
 # Codex local files
-.codex/
+.codex
 
 # Local docs
 docs/backend-spec.md
