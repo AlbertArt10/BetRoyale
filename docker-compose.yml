@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: betroyale-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: betroyale
+      POSTGRES_PASSWORD: betroyale_dev_password
+      POSTGRES_DB: betroyale_db
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - betroyale_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  betroyale_postgres_data:

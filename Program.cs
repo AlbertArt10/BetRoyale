@@ -1,4 +1,6 @@
 
+using BetRoyale.API.Configurations;
+
 namespace BetRoyale.API
 {
     public class Program
@@ -7,10 +9,8 @@ namespace BetRoyale.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddPostgreSqlPersistence(builder.Configuration);
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -26,7 +26,6 @@ namespace BetRoyale.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

@@ -37,3 +37,9 @@ appsettings.Local.json
 
 # Keep AGENTS.md out of git
 AGENTS.md
+
+# Codex local files
+.codex/
+
+# Local docs
+docs/backend-spec.md
