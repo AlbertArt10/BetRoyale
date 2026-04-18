@@ -1,5 +1,7 @@
 
 using BetRoyale.API.Configurations;
+using BetRoyale.API.Services;
+using BetRoyale.API.Services.Interfaces;
 
 namespace BetRoyale.API
 {
@@ -11,6 +13,9 @@ namespace BetRoyale.API
 
             builder.Services.AddControllers();
             builder.Services.AddPostgreSqlPersistence(builder.Configuration);
+            builder.Services.AddJwtAuthentication(builder.Configuration);
+            builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -25,6 +30,7 @@ namespace BetRoyale.API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
