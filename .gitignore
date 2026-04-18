@@ -1,0 +1,39 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local env / secrets
+.env
+.env.*
+appsettings.Local.json
+
+# Generated / temporary
+*.cache
+*.tmp
+*.temp
+
+# HTTP scratch files
+*.http
+
+# Keep AGENTS.md out of git
+AGENTS.md
