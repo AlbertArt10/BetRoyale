@@ -24,6 +24,7 @@ namespace BetRoyale.API
             builder.Services.AddScoped<ICommentService, CommentService>();
             builder.Services.AddScoped<IPredictionService, PredictionService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {

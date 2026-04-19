@@ -23,4 +23,8 @@ public class User
     public ICollection<ArticleLike> ArticleLikes { get; set; } = new List<ArticleLike>();
 
     public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
+
+    public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+
+    public ICollection<Subscription> Subscribers { get; set; } = new List<Subscription>();
 }

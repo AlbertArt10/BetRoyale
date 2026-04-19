@@ -26,6 +26,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Prediction> Predictions => Set<Prediction>();
 
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
