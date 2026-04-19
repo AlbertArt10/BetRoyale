@@ -15,4 +15,6 @@ public class User
     public Role Role { get; set; } = null!;
 
     public UserProfile? UserProfile { get; set; }
+
+    public ICollection<Article> Articles { get; set; } = new List<Article>();
 }

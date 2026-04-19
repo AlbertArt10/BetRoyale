@@ -20,7 +20,7 @@ public class MatchService : IMatchService
     public async Task<MatchDetailsDto> CreateAsync(CreateMatchRequestDto request, CancellationToken cancellationToken = default)
     {
         var (homeParticipant, awayParticipant) = ValidateAndNormalize(request.HomeParticipant, request.AwayParticipant);
-        ValidateEnums(request.Sport, request.Status);
+        ValidateRequest(request.Sport, request.Status, request.MatchDate);
 
         var match = new Match
         {
@@ -80,7 +80,7 @@ public class MatchService : IMatchService
         }
 
         var (homeParticipant, awayParticipant) = ValidateAndNormalize(request.HomeParticipant, request.AwayParticipant);
-        ValidateEnums(request.Sport, request.Status);
+        ValidateRequest(request.Sport, request.Status, request.MatchDate);
 
         match.Sport = request.Sport;
         match.HomeParticipant = homeParticipant;
@@ -107,16 +107,26 @@ public class MatchService : IMatchService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static void ValidateEnums(SportType sport, MatchStatus status)
+    private static void ValidateRequest(SportType sport, MatchStatus status, DateTime matchDate)
     {
         if (!Enum.IsDefined(sport))
         {
-            throw new InvalidMatchException("Sport is invalid.");
+            throw new InvalidMatchException("Sport value is invalid.");
         }
 
         if (!Enum.IsDefined(status))
         {
-            throw new InvalidMatchException("Status is invalid.");
+            throw new InvalidMatchException("Match status value is invalid.");
+        }
+
+        if (matchDate == default)
+        {
+            throw new InvalidMatchException("Match date is required.");
+        }
+
+        if (matchDate.Kind != DateTimeKind.Utc)
+        {
+            throw new InvalidMatchException("Match date must be provided in UTC.");
         }
     }
 
@@ -127,18 +137,18 @@ public class MatchService : IMatchService
         var normalizedHomeParticipant = homeParticipant?.Trim();
         if (string.IsNullOrWhiteSpace(normalizedHomeParticipant))
         {
-            throw new InvalidMatchException("HomeParticipant is required.");
+            throw new InvalidMatchException("Home participant is required.");
         }
 
         var normalizedAwayParticipant = awayParticipant?.Trim();
         if (string.IsNullOrWhiteSpace(normalizedAwayParticipant))
         {
-            throw new InvalidMatchException("AwayParticipant is required.");
+            throw new InvalidMatchException("Away participant is required.");
         }
 
         if (string.Equals(normalizedHomeParticipant, normalizedAwayParticipant, StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidMatchException("HomeParticipant and AwayParticipant must be different.");
+            throw new InvalidMatchException("Home participant and away participant must be different.");
         }
 
         return (normalizedHomeParticipant, normalizedAwayParticipant);

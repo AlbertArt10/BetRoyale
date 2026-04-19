@@ -15,4 +15,6 @@ public class Match
     public DateTime MatchDate { get; set; }
 
     public MatchStatus Status { get; set; }
+
+    public ICollection<Article> Articles { get; set; } = new List<Article>();
 }

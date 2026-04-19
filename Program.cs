@@ -17,7 +17,9 @@ namespace BetRoyale.API
             builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
             builder.Services.AddScoped<ITokenService, JwtTokenService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<IMatchService, MatchService>();
+            builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -26,6 +28,7 @@ namespace BetRoyale.API
                     Title = "BetRoyale.API",
                     Version = "v1"
                 });
+                options.SchemaFilter<EnumSchemaDescriptionFilter>();
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

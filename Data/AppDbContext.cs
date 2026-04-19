@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Match> Matches => Set<Match>();
 
+    public DbSet<Article> Articles => Set<Article>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

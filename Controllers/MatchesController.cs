@@ -8,7 +8,6 @@ namespace BetRoyale.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
 public class MatchesController : ControllerBase
 {
     private readonly IMatchService _matchService;
@@ -19,6 +18,7 @@ public class MatchesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(MatchDetailsDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -40,8 +40,6 @@ public class MatchesController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<MatchListItemDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<MatchListItemDto>>> GetAll(CancellationToken cancellationToken)
     {
         var response = await _matchService.GetAllAsync(cancellationToken);
@@ -50,8 +48,6 @@ public class MatchesController : ControllerBase
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(MatchDetailsDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MatchDetailsDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
@@ -67,6 +63,7 @@ public class MatchesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(MatchDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -93,6 +90,7 @@ public class MatchesController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
