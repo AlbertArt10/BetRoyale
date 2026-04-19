@@ -22,6 +22,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Comment> Comments => Set<Comment>();
 
+    public DbSet<ArticleLike> ArticleLikes => Set<ArticleLike>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

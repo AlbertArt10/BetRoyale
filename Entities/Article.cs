@@ -17,4 +17,6 @@ public class Article
     public Match Match { get; set; } = null!;
 
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public ICollection<ArticleLike> ArticleLikes { get; set; } = new List<ArticleLike>();
 }
