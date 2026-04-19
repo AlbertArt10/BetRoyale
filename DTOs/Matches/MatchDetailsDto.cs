@@ -15,4 +15,8 @@ public class MatchDetailsDto
     public DateTime MatchDate { get; set; }
 
     public MatchStatus Status { get; set; }
+
+    public int? HomeScore { get; set; }
+
+    public int? AwayScore { get; set; }
 }

@@ -16,5 +16,11 @@ public class Match
 
     public MatchStatus Status { get; set; }
 
+    public int? HomeScore { get; set; }
+
+    public int? AwayScore { get; set; }
+
     public ICollection<Article> Articles { get; set; } = new List<Article>();
+
+    public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
 }

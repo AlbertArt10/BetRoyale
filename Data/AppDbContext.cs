@@ -24,6 +24,8 @@ public class AppDbContext : DbContext
 
     public DbSet<ArticleLike> ArticleLikes => Set<ArticleLike>();
 
+    public DbSet<Prediction> Predictions => Set<Prediction>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

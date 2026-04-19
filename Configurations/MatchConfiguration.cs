@@ -28,5 +28,9 @@ public class MatchConfiguration : IEntityTypeConfiguration<Match>
 
         builder.Property(match => match.Status)
             .IsRequired();
+
+        builder.Property(match => match.HomeScore);
+
+        builder.Property(match => match.AwayScore);
     }
 }

@@ -89,6 +89,33 @@ public class MatchesController : ControllerBase
         }
     }
 
+    [HttpPut("{id:guid}/result")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(MatchDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MatchDetailsDto>> SetResult(
+        Guid id,
+        [FromBody] SetMatchResultRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _matchService.SetResultAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (InvalidMatchException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (MatchNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

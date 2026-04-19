@@ -93,6 +93,28 @@ public class MatchService : IMatchService
         return MapToDetailsDto(match);
     }
 
+    public async Task<MatchDetailsDto> SetResultAsync(Guid id, SetMatchResultRequestDto request, CancellationToken cancellationToken = default)
+    {
+        var match = await _dbContext.Matches
+            .SingleOrDefaultAsync(currentMatch => currentMatch.Id == id, cancellationToken);
+
+        if (match is null)
+        {
+            throw new MatchNotFoundException($"Match '{id}' was not found.");
+        }
+
+        ValidateResultRequest(request.HomeScore, request.AwayScore, match.Sport);
+
+        match.HomeScore = request.HomeScore;
+        match.AwayScore = request.AwayScore;
+        match.Status = MatchStatus.Finished;
+
+        await EvaluatePredictionsAsync(match, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return MapToDetailsDto(match);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var match = await _dbContext.Matches
@@ -130,6 +152,24 @@ public class MatchService : IMatchService
         }
     }
 
+    private static void ValidateResultRequest(int homeScore, int awayScore, SportType sport)
+    {
+        if (homeScore < 0)
+        {
+            throw new InvalidMatchException("Home score must be greater than or equal to 0.");
+        }
+
+        if (awayScore < 0)
+        {
+            throw new InvalidMatchException("Away score must be greater than or equal to 0.");
+        }
+
+        if ((sport == SportType.Tennis || sport == SportType.Basketball) && homeScore == awayScore)
+        {
+            throw new InvalidMatchException("Tennis and basketball matches cannot end in a draw.");
+        }
+    }
+
     private static (string HomeParticipant, string AwayParticipant) ValidateAndNormalize(
         string? homeParticipant,
         string? awayParticipant)
@@ -163,7 +203,55 @@ public class MatchService : IMatchService
             HomeParticipant = match.HomeParticipant,
             AwayParticipant = match.AwayParticipant,
             MatchDate = match.MatchDate,
-            Status = match.Status
+            Status = match.Status,
+            HomeScore = match.HomeScore,
+            AwayScore = match.AwayScore
         };
+    }
+
+    private async Task EvaluatePredictionsAsync(Match match, CancellationToken cancellationToken)
+    {
+        var actualOutcome = DetermineActualOutcome(match.Sport, match.HomeScore!.Value, match.AwayScore!.Value);
+
+        var predictions = await _dbContext.Predictions
+            .Include(prediction => prediction.User)
+            .ThenInclude(user => user.UserProfile)
+            .Where(prediction => prediction.MatchId == match.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var prediction in predictions)
+        {
+            var userProfile = prediction.User.UserProfile
+                ?? throw new InvalidOperationException($"User profile for user '{prediction.UserId}' was not found.");
+
+            var previousPoints = prediction.PointsAwarded ?? 0;
+            var isCorrect = prediction.Outcome == actualOutcome;
+            var newPointsAwarded = isCorrect ? 1 : 0;
+
+            prediction.IsCorrect = isCorrect;
+            prediction.PointsAwarded = newPointsAwarded;
+
+            userProfile.TotalPoints += newPointsAwarded - previousPoints;
+        }
+    }
+
+    private static PredictionOutcome DetermineActualOutcome(SportType sport, int homeScore, int awayScore)
+    {
+        if (homeScore > awayScore)
+        {
+            return PredictionOutcome.Home;
+        }
+
+        if (awayScore > homeScore)
+        {
+            return PredictionOutcome.Away;
+        }
+
+        if (sport == SportType.Football)
+        {
+            return PredictionOutcome.Draw;
+        }
+
+        throw new InvalidMatchException("Tennis and basketball matches cannot end in a draw.");
     }
 }

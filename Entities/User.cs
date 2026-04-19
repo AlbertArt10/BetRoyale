@@ -21,4 +21,6 @@ public class User
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
     public ICollection<ArticleLike> ArticleLikes { get; set; } = new List<ArticleLike>();
+
+    public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
 }

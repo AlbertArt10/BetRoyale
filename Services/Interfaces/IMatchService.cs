@@ -12,5 +12,7 @@ public interface IMatchService
 
     Task<MatchDetailsDto> UpdateAsync(Guid id, UpdateMatchRequestDto request, CancellationToken cancellationToken = default);
 
+    Task<MatchDetailsDto> SetResultAsync(Guid id, SetMatchResultRequestDto request, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
