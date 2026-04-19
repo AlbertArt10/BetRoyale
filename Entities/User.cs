@@ -17,4 +17,6 @@ public class User
     public UserProfile? UserProfile { get; set; }
 
     public ICollection<Article> Articles { get; set; } = new List<Article>();
+
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

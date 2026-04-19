@@ -20,6 +20,7 @@ namespace BetRoyale.API
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<IMatchService, MatchService>();
             builder.Services.AddScoped<IArticleService, ArticleService>();
+            builder.Services.AddScoped<ICommentService, CommentService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -55,10 +56,8 @@ namespace BetRoyale.API
                     }
                 });
             });
-
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

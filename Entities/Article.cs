@@ -15,4 +15,6 @@ public class Article
     public User Author { get; set; } = null!;
 
     public Match Match { get; set; } = null!;
+
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

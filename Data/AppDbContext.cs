@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Article> Articles => Set<Article>();
 
+    public DbSet<Comment> Comments => Set<Comment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
