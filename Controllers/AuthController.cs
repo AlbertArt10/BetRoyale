@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Auth;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,38 +27,8 @@ public class AuthController : ControllerBase
         [FromBody] RegisterRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _authService.RegisterAsync(request, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidUsernameException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (InvalidEmailException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (InvalidPasswordException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (DuplicateUsernameException ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
-        catch (DuplicateEmailException ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
-        catch (RoleNotFoundException ex)
-        {
-            return Problem(
-                title: "Registration failed.",
-                detail: ex.Message,
-                statusCode: StatusCodes.Status500InternalServerError);
-        }
+        var response = await _authService.RegisterAsync(request, cancellationToken);
+        return Ok(response);
     }
 
     [HttpPost("login")]
@@ -70,22 +39,8 @@ public class AuthController : ControllerBase
         [FromBody] LoginRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _authService.LoginAsync(request, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidCredentialsException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (RoleNotFoundException ex)
-        {
-            return Problem(
-                title: "Login failed.",
-                detail: ex.Message,
-                statusCode: StatusCodes.Status500InternalServerError);
-        }
+        var response = await _authService.LoginAsync(request, cancellationToken);
+        return Ok(response);
     }
 
     [Authorize]

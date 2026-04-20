@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Predictions;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,23 +33,8 @@ public class PredictionsController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _predictionService.CreateAsync(request, userId, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
-        }
-        catch (InvalidPredictionException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (PredictionUserNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _predictionService.CreateAsync(request, userId, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpGet("{id:guid}")]
@@ -59,15 +43,8 @@ public class PredictionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PredictionDetailsDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _predictionService.GetByIdAsync(id, cancellationToken);
-            return Ok(response);
-        }
-        catch (PredictionNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _predictionService.GetByIdAsync(id, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("by-match/{matchId:guid}")]
@@ -78,15 +55,8 @@ public class PredictionsController : ControllerBase
         Guid matchId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _predictionService.GetByMatchIdAsync(matchId, cancellationToken);
-            return Ok(response);
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _predictionService.GetByMatchIdAsync(matchId, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("me")]
@@ -100,15 +70,8 @@ public class PredictionsController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _predictionService.GetByUserIdAsync(userId, cancellationToken);
-            return Ok(response);
-        }
-        catch (PredictionUserNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
+        var response = await _predictionService.GetByUserIdAsync(userId, cancellationToken);
+        return Ok(response);
     }
 
     private bool TryGetCurrentUserId(out Guid userId)

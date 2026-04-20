@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Comments;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,23 +33,8 @@ public class CommentsController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _commentService.CreateAsync(request, userId, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
-        }
-        catch (InvalidCommentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (CommentAuthorNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (ArticleNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _commentService.CreateAsync(request, userId, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpGet("{id:guid}")]
@@ -59,15 +43,8 @@ public class CommentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CommentDetailsDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _commentService.GetByIdAsync(id, cancellationToken);
-            return Ok(response);
-        }
-        catch (CommentNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _commentService.GetByIdAsync(id, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("by-article/{articleId:guid}")]
@@ -100,23 +77,8 @@ public class CommentsController : ControllerBase
 
         var isAdmin = User.IsInRole("Admin");
 
-        try
-        {
-            var response = await _commentService.UpdateAsync(id, request, currentUserId, isAdmin, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidCommentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (CommentUpdateForbiddenException)
-        {
-            return Forbid();
-        }
-        catch (CommentNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _commentService.UpdateAsync(id, request, currentUserId, isAdmin, cancellationToken);
+        return Ok(response);
     }
 
     [HttpDelete("{id:guid}")]
@@ -134,19 +96,8 @@ public class CommentsController : ControllerBase
 
         var isAdmin = User.IsInRole("Admin");
 
-        try
-        {
-            await _commentService.DeleteAsync(id, currentUserId, isAdmin, cancellationToken);
-            return NoContent();
-        }
-        catch (CommentUpdateForbiddenException)
-        {
-            return Forbid();
-        }
-        catch (CommentNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _commentService.DeleteAsync(id, currentUserId, isAdmin, cancellationToken);
+        return NoContent();
     }
 
     private bool TryGetCurrentUserId(out Guid userId)

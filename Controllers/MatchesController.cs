@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Matches;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,15 +26,8 @@ public class MatchesController : ControllerBase
         [FromBody] CreateMatchRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _matchService.CreateAsync(request, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
-        }
-        catch (InvalidMatchException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var response = await _matchService.CreateAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpGet]
@@ -51,15 +43,8 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MatchDetailsDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _matchService.GetByIdAsync(id, cancellationToken);
-            return Ok(response);
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _matchService.GetByIdAsync(id, cancellationToken);
+        return Ok(response);
     }
 
     [HttpPut("{id:guid}")]
@@ -74,19 +59,8 @@ public class MatchesController : ControllerBase
         [FromBody] UpdateMatchRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _matchService.UpdateAsync(id, request, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidMatchException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _matchService.UpdateAsync(id, request, cancellationToken);
+        return Ok(response);
     }
 
     [HttpPut("{id:guid}/result")]
@@ -101,19 +75,8 @@ public class MatchesController : ControllerBase
         [FromBody] SetMatchResultRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _matchService.SetResultAsync(id, request, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidMatchException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _matchService.SetResultAsync(id, request, cancellationToken);
+        return Ok(response);
     }
 
     [HttpDelete("{id:guid}")]
@@ -124,14 +87,7 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _matchService.DeleteAsync(id, cancellationToken);
-            return NoContent();
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _matchService.DeleteAsync(id, cancellationToken);
+        return NoContent();
     }
 }

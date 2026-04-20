@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.ArticleLikes;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,23 +33,8 @@ public class ArticleLikesController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _articleLikeService.LikeAsync(request, userId, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidArticleLikeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ArticleLikeUserNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (ArticleNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _articleLikeService.LikeAsync(request, userId, cancellationToken);
+        return Ok(response);
     }
 
     [HttpDelete("{articleId:guid}")]
@@ -68,19 +52,8 @@ public class ArticleLikesController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _articleLikeService.UnlikeAsync(articleId, userId, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidArticleLikeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ArticleLikeNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _articleLikeService.UnlikeAsync(articleId, userId, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("summary/{articleId:guid}")]
@@ -92,16 +65,8 @@ public class ArticleLikesController : ControllerBase
         CancellationToken cancellationToken)
     {
         Guid? currentUserId = TryGetCurrentUserId(out var parsedUserId) ? parsedUserId : null;
-
-        try
-        {
-            var response = await _articleLikeService.GetSummaryAsync(articleId, currentUserId, cancellationToken);
-            return Ok(response);
-        }
-        catch (ArticleNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _articleLikeService.GetSummaryAsync(articleId, currentUserId, cancellationToken);
+        return Ok(response);
     }
 
     private bool TryGetCurrentUserId(out Guid userId)

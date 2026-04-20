@@ -1,4 +1,5 @@
 using BetRoyale.API.Configurations;
+using BetRoyale.API.Middleware;
 using BetRoyale.API.Services;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.OpenApi.Models;
@@ -71,6 +72,7 @@ namespace BetRoyale.API
             }
 
             app.UseHttpsRedirection();
+            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseAuthentication();
             app.UseAuthorization();

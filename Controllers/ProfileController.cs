@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Profiles;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,19 +30,8 @@ public class ProfileController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _profileService.GetMyProfileAsync(userId, cancellationToken);
-            return Ok(response);
-        }
-        catch (ProfileNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (InvalidProfileException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var response = await _profileService.GetMyProfileAsync(userId, cancellationToken);
+        return Ok(response);
     }
 
     [HttpPut("me")]
@@ -61,19 +49,8 @@ public class ProfileController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _profileService.UpdateMyProfileAsync(userId, request, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidProfileException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ProfileNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _profileService.UpdateMyProfileAsync(userId, request, cancellationToken);
+        return Ok(response);
     }
 
     private bool TryGetCurrentUserId(out Guid userId)

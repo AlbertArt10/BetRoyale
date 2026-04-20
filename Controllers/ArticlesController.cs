@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Articles;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,23 +37,8 @@ public class ArticlesController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _articleService.CreateAsync(request, authorId, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
-        }
-        catch (InvalidArticleException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ArticleAuthorNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _articleService.CreateAsync(request, authorId, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpGet]
@@ -84,19 +68,8 @@ public class ArticlesController : ControllerBase
 
         var isAdmin = User.IsInRole("Admin");
 
-        try
-        {
-            await _articleService.DeleteAsync(id, currentUserId, isAdmin, cancellationToken);
-            return NoContent();
-        }
-        catch (ArticleUpdateForbiddenException)
-        {
-            return Forbid();
-        }
-        catch (ArticleNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _articleService.DeleteAsync(id, currentUserId, isAdmin, cancellationToken);
+        return NoContent();
     }
 
     [HttpPut("{id:guid}")]
@@ -121,27 +94,8 @@ public class ArticlesController : ControllerBase
 
         var isAdmin = User.IsInRole("Admin");
 
-        try
-        {
-            var response = await _articleService.UpdateAsync(id, request, currentUserId, isAdmin, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidArticleException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ArticleUpdateForbiddenException)
-        {
-            return Forbid();
-        }
-        catch (ArticleNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (MatchNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _articleService.UpdateAsync(id, request, currentUserId, isAdmin, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("{id:guid}")]
@@ -150,15 +104,8 @@ public class ArticlesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ArticleDetailsDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _articleService.GetByIdAsync(id, cancellationToken);
-            return Ok(response);
-        }
-        catch (ArticleNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _articleService.GetByIdAsync(id, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("by-match/{matchId:guid}")]

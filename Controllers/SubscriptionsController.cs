@@ -1,5 +1,4 @@
 using BetRoyale.API.DTOs.Subscriptions;
-using BetRoyale.API.Services.Exceptions;
 using BetRoyale.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,23 +33,8 @@ public class SubscriptionsController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _subscriptionService.SubscribeAsync(request, subscriberId, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidSubscriptionException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (SubscriptionUserNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (UserNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _subscriptionService.SubscribeAsync(request, subscriberId, cancellationToken);
+        return Ok(response);
     }
 
     [HttpDelete("{analystId:guid}")]
@@ -66,19 +50,8 @@ public class SubscriptionsController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            await _subscriptionService.UnsubscribeAsync(analystId, subscriberId, cancellationToken);
-            return NoContent();
-        }
-        catch (InvalidSubscriptionException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (SubscriptionNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _subscriptionService.UnsubscribeAsync(analystId, subscriberId, cancellationToken);
+        return NoContent();
     }
 
     [HttpGet("me")]
@@ -93,15 +66,8 @@ public class SubscriptionsController : ControllerBase
             return Unauthorized(new { message = "Invalid authenticated user." });
         }
 
-        try
-        {
-            var response = await _subscriptionService.GetMySubscriptionsAsync(subscriberId, cancellationToken);
-            return Ok(response);
-        }
-        catch (SubscriptionUserNotFoundException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
+        var response = await _subscriptionService.GetMySubscriptionsAsync(subscriberId, cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("subscribers/{analystId:guid}")]
@@ -113,19 +79,8 @@ public class SubscriptionsController : ControllerBase
         Guid analystId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var response = await _subscriptionService.GetSubscribersByAnalystIdAsync(analystId, cancellationToken);
-            return Ok(response);
-        }
-        catch (InvalidSubscriptionException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (UserNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var response = await _subscriptionService.GetSubscribersByAnalystIdAsync(analystId, cancellationToken);
+        return Ok(response);
     }
 
     private bool TryGetCurrentUserId(out Guid userId)
