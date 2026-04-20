@@ -12,10 +12,12 @@ namespace BetRoyale.API
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+            builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.SectionName));
             builder.Services.AddPostgreSqlPersistence(builder.Configuration);
             builder.Services.AddJwtAuthentication(builder.Configuration);
             builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
             builder.Services.AddScoped<ITokenService, JwtTokenService>();
+            builder.Services.AddScoped<IEmailService, SmtpEmailService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<IMatchService, MatchService>();

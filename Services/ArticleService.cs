@@ -1,4 +1,5 @@
 using BetRoyale.API.Data;
+using BetRoyale.API.Data.Seed;
 using BetRoyale.API.DTOs.Articles;
 using BetRoyale.API.Entities;
 using BetRoyale.API.Services.Exceptions;
@@ -10,10 +11,14 @@ namespace BetRoyale.API.Services;
 public class ArticleService : IArticleService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<ArticleService> _logger;
 
-    public ArticleService(AppDbContext dbContext)
+    public ArticleService(AppDbContext dbContext, IEmailService emailService, ILogger<ArticleService> logger)
     {
         _dbContext = dbContext;
+        _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<ArticleDetailsDto> CreateAsync(
@@ -52,6 +57,8 @@ public class ArticleService : IArticleService
 
         _dbContext.Articles.Add(article);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await TryNotifySubscribersAsync(author, article, cancellationToken);
 
         return new ArticleDetailsDto
         {
@@ -208,6 +215,38 @@ public class ArticleService : IArticleService
                 MatchId = article.MatchId
             })
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task TryNotifySubscribersAsync(User author, Article article, CancellationToken cancellationToken)
+    {
+        if (author.RoleId != RoleSeedData.AnalystId)
+        {
+            return;
+        }
+
+        try
+        {
+            var subscriberEmails = await _dbContext.Subscriptions
+                .AsNoTracking()
+                .Where(subscription => subscription.AnalystId == author.Id)
+                .Select(subscription => subscription.Subscriber.Email)
+                .ToListAsync(cancellationToken);
+
+            await _emailService.SendArticlePublishedNotificationAsync(
+                subscriberEmails,
+                author.Username,
+                article.Title,
+                article.Content,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to send article notification emails for article {ArticleId} by analyst {AnalystId}.",
+                article.Id,
+                author.Id);
+        }
     }
 
     private static (string Title, string Content, Guid MatchId) ValidateRequest(
